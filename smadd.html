@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoraOS — Work In Progress</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c8982a;
+      --gold-bright: #f0c040;
+      --gold-dim: #7a5a10;
+      --bg: #0c0b08;
+      --scanline-color: rgba(0,0,0,0.18);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--gold);
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── SCANLINES ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        var(--scanline-color) 2px,
+        var(--scanline-color) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+      animation: scanMove 8s linear infinite;
+    }
+
+    @keyframes scanMove {
+      0%   { background-position: 0 0; }
+      100% { background-position: 0 100px; }
+    }
+
+    /* ── VIGNETTE ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.75) 100%);
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* ── FLOATING PARTICLES ── */
+    #particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .particle {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      animation: floatUp var(--dur) var(--delay) infinite ease-in;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.2; }
+      100% { transform: translateY(-100vh) translateX(var(--drift)); opacity: 0; }
+    }
+
+    /* ── MAIN WRAPPER ── */
+    #main {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      opacity: 0;
+      animation: fadeIn 1.2s 0.3s ease forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    /* ── ASCII ART ── */
+    #ascii-wrap {
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    #ascii {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(5px, 1.1vw, 9px);
+      line-height: 1.15;
+      letter-spacing: 0.05em;
+      white-space: pre;
+      color: var(--gold);
+      text-shadow:
+        0 0 6px var(--gold-bright),
+        0 0 14px var(--gold),
+        0 0 30px var(--gold-dim);
+      animation: glowPulse 3s ease-in-out infinite, charFlicker 0.08s step-end infinite;
+      position: relative;
+      user-select: none;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        text-shadow:
+          0 0 6px var(--gold-bright),
+          0 0 14px var(--gold),
+          0 0 30px var(--gold-dim);
+        opacity: 1;
+      }
+      50% {
+        text-shadow:
+          0 0 10px var(--gold-bright),
+          0 0 22px var(--gold),
+          0 0 50px var(--gold-dim),
+          0 0 80px rgba(200,152,42,0.3);
+        opacity: 0.95;
+      }
+    }
+
+    @keyframes charFlicker {
+      0%   { opacity: 1; }
+      92%  { opacity: 1; }
+      93%  { opacity: 0.85; }
+      94%  { opacity: 1; }
+      97%  { opacity: 1; }
+      98%  { opacity: 0.7; }
+      99%  { opacity: 1; }
+    }
+
+    /* ── TITLE ── */
+    #title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: clamp(28px, 6vw, 72px);
+      letter-spacing: 0.35em;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+      text-shadow:
+        0 0 10px var(--gold-bright),
+        0 0 30px var(--gold),
+        0 0 60px var(--gold-dim);
+      position: relative;
+      margin-bottom: 24px;
+      animation: titleReveal 1.4s 0.8s both, glowTitle 4s 2s ease-in-out infinite;
+    }
+
+    @keyframes titleReveal {
+      0% { clip-path: inset(0 100% 0 0); opacity: 0; }
+      30% { opacity: 1; }
+      100% { clip-path: inset(0 0% 0 0); opacity: 1; }
+    }
+
+    @keyframes glowTitle {
+      0%, 100% {
+        text-shadow:
+          0 0 10px var(--gold-bright),
+          0 0 30px var(--gold),
+          0 0 60px var(--gold-dim);
+      }
+      50% {
+        text-shadow:
+          0 0 20px #fff8e0,
+          0 0 40px var(--gold-bright),
+          0 0 80px var(--gold),
+          0 0 120px var(--gold-dim);
+      }
+    }
+
+    /* glitch layers */
+    #title::before, #title::after {
+      content: 'CoraOS';
+      position: absolute;
+      top: 0; left: 0; width: 100%;
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      letter-spacing: 0.35em;
+    }
+    #title::before {
+      color: #ff6060;
+      animation: glitchTop 5s 3s step-end infinite;
+      clip-path: inset(0 0 70% 0);
+    }
+    #title::after {
+      color: #60cfff;
+      animation: glitchBot 5s 3.2s step-end infinite;
+      clip-path: inset(60% 0 0 0);
+    }
+
+    @keyframes glitchTop {
+      0%,90%,100% { transform: none; opacity: 0; }
+      91% { transform: translate(-3px, -2px); opacity: 0.7; }
+      93% { transform: translate(3px, 1px); opacity: 0.5; }
+      95% { transform: none; opacity: 0; }
+    }
+    @keyframes glitchBot {
+      0%,88%,100% { transform: none; opacity: 0; }
+      89% { transform: translate(3px, 2px); opacity: 0.7; }
+      91% { transform: translate(-2px, -1px); opacity: 0.4; }
+      93% { transform: none; opacity: 0; }
+    }
+
+    /* ── BADGE ── */
+    #badge {
+      border: 1px solid var(--gold-dim);
+      padding: 5px 18px;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      position: relative;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 1.4s ease forwards;
+    }
+    #badge::before, #badge::after {
+      content: '✦';
+      margin: 0 8px;
+      color: var(--gold-bright);
+    }
+    #badge .corner {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-color: var(--gold-bright);
+      border-style: solid;
+    }
+    #badge .corner.tl { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+    #badge .corner.tr { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+    #badge .corner.bl { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+    #badge .corner.br { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+    /* ── PATH ── */
+    #path {
+      font-size: 13px;
+      color: var(--gold-dim);
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 1.7s ease forwards;
+    }
+    #path span { color: var(--gold); }
+
+    /* ── TAGLINE ── */
+    #tagline {
+      font-size: clamp(13px, 2vw, 16px);
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      text-align: center;
+      line-height: 1.6;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 2s ease forwards;
+      margin-bottom: 32px;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 260px;
+      margin-bottom: 14px;
+      opacity: 0;
+      animation: fadeSlideUp 0.6s 2.2s ease forwards;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    }
+    .divider-dot {
+      width: 5px; height: 5px;
+      border: 1px solid var(--gold);
+      transform: rotate(45deg);
+      animation: rotateDot 6s linear infinite;
+    }
+    @keyframes rotateDot { to { transform: rotate(225deg); } }
+
+    /* ── PROGRESS BAR ── */
+    #progress-wrap {
+      width: 260px;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 2.3s ease forwards;
+    }
+    #progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    #progress-label span:last-child {
+      color: var(--gold);
+      animation: blink 1.4s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    #progress-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(200,152,42,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--gold-dim), var(--gold-bright));
+      width: 0;
+      animation: fillBar 3s 2.8s ease forwards;
+      box-shadow: 0 0 8px var(--gold);
+    }
+    @keyframes fillBar { to { width: 38%; } }
+
+    #progress-track::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -60%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 2.5s 3.5s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { left: -60%; }
+      100% { left: 120%; }
+    }
+
+    /* ── FOOTER LINKS ── */
+    #links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--gold-dim);
+      opacity: 0;
+      animation: fadeSlideUp 0.8s 2.6s ease forwards;
+    }
+    #links a {
+      color: var(--gold-dim);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+    #links a:hover {
+      color: var(--gold-bright);
+      text-shadow: 0 0 8px var(--gold);
+    }
+    .links-sep {
+      width: 4px; height: 4px;
+      background: var(--gold-dim);
+      transform: rotate(45deg);
+    }
+
+    @keyframes fadeSlideUp {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── NOISE OVERLAY ── */
+    #noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 98;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+      animation: noiseAnim 0.15s step-end infinite;
+    }
+    @keyframes noiseAnim {
+      0%   { background-position: 0 0; }
+      25%  { background-position: -30px 15px; }
+      50%  { background-position: 15px -20px; }
+      75%  { background-position: -10px 25px; }
+      100% { background-position: 20px -10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="noise"></div>
+
+<!-- Floating particles -->
+<div id="particles"></div>
+
+<div id="main">
+
+  <div id="ascii-wrap">
+    <pre id="ascii">                                 ##                                 
+                              ########                              
+                             ##########                             
+                           ##############                           
+                         ###########    ##*                         
+                   #### #########     ###########                   
+                 ################  *################                
+               ##### #################### ###########               
+             ##########################################             
+             ####### ##################################             
+             ##########     ######## ####    ##### ####             
+            *##########     ############     ###### ###*            
+            *##########      ####  ####      ######  ###            
+            ### ########                    ####### ####            
+            #### ########                  ####### #####            
+             ##############              ####### ######             
+             ################          ################             
+              #################      #################              
+               #################    ####### #########               
+                ######################### ##########                
+                 ########### ########## ###########                 
+                   ##############################                   
+                     ########## #*## ##########                     
+                       ########      ########                       
+                         #######    #######                         
+                           #####    #####                           
+                             ##########                             
+                               ######                               
+                                 ##                                 </pre>
+  </div>
+
+  <div id="title">CoraOS</div>
+
+  <div id="badge">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+    work in progress
+  </div>
+
+  <div id="path">~<span>/distro</span></div>
+
+  <div id="tagline">
+    Something powerful is being<br>forged. Stay tuned.
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-dot"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div id="progress-wrap">
+    <div id="progress-label">
+      <span>build progress</span>
+      <span>pending_</span>
+    </div>
+    <div id="progress-track">
+      <div id="progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-dot"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div id="links">
+    <a href="https://github.com/fusiontech21" target="_blank">
+      <!-- github icon -->
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      github.com/fusiontech21
+    </a>
+    <div class="links-sep"></div>
+    <a href="mailto:fusiontech211@gmail.com">
+      <!-- mail icon -->
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <path d="M2 7l10 7 10-7"/>
+      </svg>
+      fusiontech211@gmail.com
+    </a>
+  </div>
+
+</div>
+
+<script>
+  // ── SPAWN PARTICLES ──
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      bottom: ${Math.random() * -20}px;
+      --dur: ${6 + Math.random() * 12}s;
+      --delay: ${-Math.random() * 18}s;
+      --drift: ${(Math.random() - 0.5) * 80}px;
+      width: ${1 + Math.random() * 2}px;
+      height: ${1 + Math.random() * 2}px;
+    `;
+    container.appendChild(p);
+  }
+
+  // ── RANDOM ASCII CHAR FLICKER ──
+  const ascii = document.getElementById('ascii');
+  const original = ascii.textContent;
+  const chars = '#*+░▒▓';
+
+  setInterval(() => {
+    if (Math.random() > 0.7) return; // skip most frames
+    const arr = original.split('');
+    const hashPositions = arr.reduce((a, c, i) => (c === '#' ? [...a, i] : a), []);
+    const pick = hashPositions[Math.floor(Math.random() * hashPositions.length)];
+    if (pick !== undefined) {
+      arr[pick] = chars[Math.floor(Math.random() * chars.length)];
+      ascii.textContent = arr.join('');
+      setTimeout(() => { ascii.textContent = original; }, 60);
+    }
+  }, 120);
+</script>
+</body>
+</html>
